@@ -12,23 +12,31 @@ use std::any::TypeId;
 use std::convert::TryFrom;
 #[cfg(feature = "std")]
 use std::error::Error;
+use std::fmt::{self, Debug, Display};
 #[cfg(feature = "nightly")]
 use std::intrinsics;
-use std::fmt::{self, Debug, Display};
 use std::mem;
 
 // ++++++++++++++++++++ Any ++++++++++++++++++++
 
 #[cfg(feature = "nightly")]
-fn type_name<T: StdAny + ?Sized>() -> &'static str { unsafe { intrinsics::type_name::<T>() } }
+fn type_name<T: StdAny + ?Sized>() -> &'static str {
+    unsafe { intrinsics::type_name::<T>() }
+}
 #[cfg(not(feature = "nightly"))]
-fn type_name<T: StdAny + ?Sized>() -> &'static str { "[ONLY ON NIGHTLY]" }
+fn type_name<T: StdAny + ?Sized>() -> &'static str {
+    "[ONLY ON NIGHTLY]"
+}
 
 /// FIXME(https://github.com/rust-lang/rust/issues/27745) remove this
 pub trait Any: StdAny {
-    fn type_id(&self) -> TypeId { TypeId::of::<Self>() }
+    fn type_id(&self) -> TypeId {
+        TypeId::of::<Self>()
+    }
     #[doc(hidden)]
-    fn type_name(&self) -> &'static str { type_name::<Self>() }
+    fn type_name(&self) -> &'static str {
+        type_name::<Self>()
+    }
 }
 
 impl<T> Any for T where T: StdAny + ?Sized {}
@@ -43,7 +51,9 @@ pub struct TypeMismatch {
 
 impl TypeMismatch {
     pub fn new<T, O>(found_obj: &O) -> Self
-        where T: Any + ?Sized, O: Any + ?Sized
+    where
+        T: Any + ?Sized,
+        O: Any + ?Sized,
     {
         TypeMismatch {
             expected: type_name::<T>(),
@@ -54,13 +64,19 @@ impl TypeMismatch {
 
 impl Display for TypeMismatch {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "Type mismatch: Expected '{}', found '{}'!", self.expected, self.found)
+        write!(
+            fmt,
+            "Type mismatch: Expected '{}', found '{}'!",
+            self.expected, self.found
+        )
     }
 }
 
 #[cfg(feature = "std")]
 impl Error for TypeMismatch {
-    fn description(&self) -> &str { "Type mismatch" }
+    fn description(&self) -> &str {
+        "Type mismatch"
+    }
 }
 
 // ++++++++++++++++++++ DowncastError ++++++++++++++++++++
@@ -77,8 +93,12 @@ impl<O> DowncastError<O> {
             object: object,
         }
     }
-    pub fn type_mismatch(&self) -> TypeMismatch { self.mismatch }
-    pub fn into_object(self) -> O { self.object }
+    pub fn type_mismatch(&self) -> TypeMismatch {
+        self.mismatch
+    }
+    pub fn into_object(self) -> O {
+        self.object
+    }
 }
 
 impl<O> Debug for DowncastError<O> {
@@ -97,7 +117,9 @@ impl<O> Display for DowncastError<O> {
 
 #[cfg(feature = "std")]
 impl<O> Error for DowncastError<O> {
-    fn description(&self) -> &str { self.mismatch.description() }
+    fn description(&self) -> &str {
+        self.mismatch.description()
+    }
 }
 
 // ++++++++++++++++++++ Downcast ++++++++++++++++++++
@@ -115,11 +137,16 @@ fn to_trait_object<T: ?Sized>(obj: &T) -> TraitObject {
 }
 
 pub trait Downcast<T>: Any
-    where T: Any
+where
+    T: Any,
 {
-    fn is_type(&self) -> bool { self.type_id() == TypeId::of::<T>() }
+    fn is_type(&self) -> bool {
+        self.type_id() == TypeId::of::<T>()
+    }
 
-    unsafe fn downcast_ref_unchecked(&self) -> &T { &*(to_trait_object(self).data as *mut T) }
+    unsafe fn downcast_ref_unchecked(&self) -> &T {
+        &*(to_trait_object(self).data as *mut T)
+    }
 
     fn downcast_ref(&self) -> Result<&T, TypeMismatch> {
         if self.is_type() {

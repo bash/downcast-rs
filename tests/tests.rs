@@ -11,7 +11,7 @@ struct Param1;
 struct Param2;
 
 struct ImplA {
-    data: String
+    data: String,
 }
 impl Simple for ImplA {}
 impl WithParams<Param1, Param2> for ImplA {}
@@ -21,8 +21,10 @@ impl Simple for ImplB {}
 impl WithParams<Param1, Param2> for ImplB {}
 
 #[test]
-fn simple(){
-    let mut a: Box<Simple> = Box::new(ImplA{ data: "data".into() });
+fn simple() {
+    let mut a: Box<Simple> = Box::new(ImplA {
+        data: "data".into(),
+    });
 
     assert_eq!(a.downcast_ref::<ImplA>().unwrap().data, "data");
     assert!(a.downcast_ref::<ImplB>().is_err());
@@ -34,8 +36,10 @@ fn simple(){
 }
 
 #[test]
-fn with_params(){
-    let mut a: Box<WithParams<Param1, Param2>> = Box::new(ImplA{ data: "data".into() });
+fn with_params() {
+    let mut a: Box<WithParams<Param1, Param2>> = Box::new(ImplA {
+        data: "data".into(),
+    });
 
     assert_eq!(a.downcast_ref::<ImplA>().unwrap().data, "data");
     assert!(a.downcast_ref::<ImplB>().is_err());

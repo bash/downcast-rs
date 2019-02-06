@@ -6,7 +6,11 @@ use std::fmt::Debug;
 
 /* Trait */
 
-trait Animal<X>: Any where X: Debug {}
+trait Animal<X>: Any
+where
+    X: Debug,
+{
+}
 
 downcast!(<X> Animal<X> where X: Debug);
 
