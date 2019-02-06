@@ -6,7 +6,9 @@ mod std {
     pub use core::*;
 }
 
-use std::any::Any as StdAny;
+mod any;
+
+pub use any::Any;
 use std::any::TypeId;
 #[cfg(feature = "nightly")]
 use std::convert::TryFrom;
@@ -16,30 +18,6 @@ use std::fmt::{self, Debug, Display};
 #[cfg(feature = "nightly")]
 use std::intrinsics;
 use std::mem;
-
-// ++++++++++++++++++++ Any ++++++++++++++++++++
-
-#[cfg(feature = "nightly")]
-fn type_name<T: StdAny + ?Sized>() -> &'static str {
-    unsafe { intrinsics::type_name::<T>() }
-}
-#[cfg(not(feature = "nightly"))]
-fn type_name<T: StdAny + ?Sized>() -> &'static str {
-    "[ONLY ON NIGHTLY]"
-}
-
-/// FIXME(https://github.com/rust-lang/rust/issues/27745) remove this
-pub trait Any: StdAny {
-    fn type_id(&self) -> TypeId {
-        TypeId::of::<Self>()
-    }
-    #[doc(hidden)]
-    fn type_name(&self) -> &'static str {
-        type_name::<Self>()
-    }
-}
-
-impl<T> Any for T where T: StdAny + ?Sized {}
 
 // ++++++++++++++++++++ TypeMismatch ++++++++++++++++++++
 
@@ -56,7 +34,7 @@ impl TypeMismatch {
         O: Any + ?Sized,
     {
         TypeMismatch {
-            expected: type_name::<T>(),
+            expected: any::type_name::<T>(),
             found: found_obj.type_name(),
         }
     }
