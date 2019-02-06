@@ -1,10 +1,9 @@
 # downcast
 
 [![](http://meritbadge.herokuapp.com/downcast)](https://crates.io/crates/downcast)
+[![docs badge](https://docs.rs/mio/badge.svg)](https://docs.rs/downcast)
 
 A trait (& utilities) for downcasting trait objects back to their original types.
-
-## [link to API documentation](https://docs.rs/downcast)
 
 ## example usage
 
